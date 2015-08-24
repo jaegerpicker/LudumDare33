@@ -15,6 +15,10 @@
   var playerCollisionGroup = null;
   var monsterCollisionGroup = null;
   var bulletCollisionGroup = null;
+  var starfield = null;
+  var player_score = 0;
+  var gameRef = null;
+  var game_over = false;
 
   PlayGame.prototype = {
 
@@ -22,6 +26,10 @@
       this.player_choice = playerChoice;
     },
     create: function() {
+      this.gameRef = this.game;
+      this.game.world.setBounds(0,0,1600,1200);
+      this.starfield = this.game.add.tileSprite(0, 0, 1024, 768, 'stars');
+      this.starfield.fixedToCamera = true;
       this.main_player = this.game.add.sprite(0, 0, this.player_choice);
       this.main_player.anchor.setTo(0.5, 0.5);
       this.main_player.scale.setTo(0.04,0.04);
@@ -44,10 +52,10 @@
       this.main_player.body.setCircle(28);
       this.main_player.body.fixedRotation = true;
       this.main_player.body.setCollisionGroup(this.playerCollisionGroup);
-      this.main_player.body.collides(this.monsterCollisionGroup, this.playerCollide);
+      this.main_player.body.collides(this.monsterCollisionGroup, this.playerCollide, this);
       this.bullets = this.game.add.physicsGroup(Phaser.Physics.P2JS);
       this.bullets.enableBody = true;
-      this.bullets.createMultiple(30, this.player_choice + '-shot');
+      this.bullets.createMultiple(300, this.player_choice + '-shot');
       this.bullets.setAll('anchor.x', 0.5);
       this.bullets.setAll('anchor.y', 1);
       this.bullets.setAll('outOfBoundsKill', true);
@@ -55,6 +63,7 @@
       this.cursors = this.game.input.keyboard.createCursorKeys();
       this.fireButton = this.game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
       this.spawn_counter = 0;
+      this.game.camera.follow(this.main_player);
     },
     update: function() {
       this.main_player.body.setZeroVelocity();
@@ -88,6 +97,12 @@
       } else {
         this.spawn_counter += 1;
       }
+      if(!this.game.camera.atLimit.x) {
+        this.starfield.tilePosition.x -= (this.main_player.body.velocity.x * this.game.time.physicsElapsed);
+      }
+      if(!this.game.camera.atLimit.y) {
+        this.starfield.tilePosition.y += (this.main_player.body.velocity.y * this.game.time.physicsElapsed);
+      }
       //this.game.physics.p2.overlap(this.main_player, monsters, this.playerCollide, null, this);
       //this.game.physics.p2.overlap(bullets, monsters, this.bulletCollide, null, this);
     },
@@ -104,12 +119,36 @@
       }
     },
     playerCollide: function(player, monster) {
-      //this.player.kill();
-      console.log("Player should die");
+      player.sprite.kill();
+      //console.log("Player should die");
+      this.game.debug.text('Player Score: ' + player_score.toString() + ' GAME OVER!', 32, 32);
+      var select_monster_text = this.game.add.text(this.game.width * 0.5 - 10, this.game.height * 0.5 + 15,
+      'Play Again?', {font: '24px Arial', fill:'#FF0000', align:'center'});
+      player.sprite.kill();
+      select_monster_text.anchor.set(0.5);
+      select_monster_text.inputEnabled = true;
+      select_monster_text.events.onInputDown.add(this.onMonsterClick, this);
+      this.game.stage.backgroundColor = '#000000';
+      this.game_over = true;
+      //this.starfield.tilePosition.x = 0;
+      //this.starfield.tilePosition.y = 0;
     },
     bulletCollide: function(bullet, monster) {
       bullet.sprite.kill();
       monster.sprite.kill();
+      player_score = player_score + 1;
+      if(!this.game_over) {
+        this.game.debug.text('Player Score: ' + player_score.toString(), 32, 32);
+      }
+    },
+    render: function() {
+      if(!this.game_over) {
+        this.game.debug.text('Player Score: ' + player_score.toString(), 32, 32);
+      }
+    },
+    onMonsterClick: function() {
+      console.log("Clickty Click");
+      this.game.state.start('game');
     }
   }
   window['whatsamonster'] = window['whatsamonster'] || {};

@@ -31,6 +31,7 @@
       this.game.load.image('player', 'assets/player.png');
       this.game.load.image('pinkMonster-shot', 'assets/Monster-Shot.png');
       this.game.load.image('blueRobot-shot', 'assets/Robot-Shot.png');
+      this.game.load.image('stars', 'assets/space.png');
       //this.blue_robot = game.add.sprite(game.world.centerX, game.world.centerY, 'blueRobot'); //this.add.sprite(this.game.width * 0.5 - 110, this.game.height * 0.5 - 10, 'blueRobot');
       //this.dragon = game.add.sprite(game.world.centerX, game.world.centerY, 'dragon'); //this.add.sprite(this.game.width * 0.5 - 110, this.game.height * 0.5 - 10, 'dragon');
       //this.negatron = game.add.sprite(game.world.centerX, game.world.centerY, 'negatron'); //this.add.sprite(this.game.width * 0.5 - 110, this.game.height * 0.5 - 10, 'negatron');
